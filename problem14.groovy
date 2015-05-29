@@ -1,22 +1,27 @@
 //def example = [13, 40, 20, 10, 5, 16, 8, 4, 2, 1]
 def collatz(i, memo){ 
+  //println "Collatz ${i}"
   def chain = [i]
-  while (memo[ chain[-1] ] == -1){
-    def next = (chain[-1] % 2 == 0) ? chain[-1] / 2 : 3*chain[-1] + 1
-    chain.add(next)
-    println "${i}: chain is now " + chain
-    println "With memo values: " + memo[1..i]
+  while (memo[chain[-1]] == null){
+    chain += ((chain[-1] % 2 == 0) ? chain[-1] / 2 : 3*chain[-1] + 1) as BigInteger
+    //println "${i}: ${chain}"
+    assert chain[-1] > 0
   }
-  chain.eachWithIndex{ n, index -> memo[n] = chain.size()-1 - index + memo[ chain[-1] ]}
+  def seqLength = chain.size()
+  chain.eachWithIndex{ n, index -> 
+                       //println "n = ${n}, i = ${index}"
+                       memo[n] = (seqLength - 1 - index) + memo[ chain[-1] ]
+                     }
 }
-def memoChain = [-1] * 100
-memoChain[1] = 1
-1.upto(10){ println "Calling collatz on ${it}"
-println memoChain
-collatz(it, memoChain) }
+def lengthMap = [(1 as BigInteger):1]
 
-memoChain
+1.upto(1000000){
+  collatz(it, lengthMap)
+}
 
+//println lengthMap.size()
+def maxLength = lengthMap.values().max()
+println lengthMap.find{ it.value == maxLength }
 
 
 
